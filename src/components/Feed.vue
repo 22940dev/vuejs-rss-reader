@@ -1,14 +1,14 @@
 <template>
   <div>
-    <div class="container" v-show="loading">
-      <div class="columns pt-3">
-        <div class="card">
-          <div class="card-content">
-            <b-icon pack="fas" icon="sync-alt" size="is-large" custom-class="fa-spin"></b-icon>
-          </div>
-        </div>
-      </div>
-    </div>
+    <b-message v-show="loading" v-for="i in 10" :key="i" :closable="false">
+      <template #header>
+        <b-skeleton width="300px" :animated="true">Loading</b-skeleton>
+      </template>
+      <b-skeleton width="80%" :animated="true"></b-skeleton>
+      <b-skeleton width="70%" :animated="true"></b-skeleton>
+      <b-skeleton width="85%" :animated="true"></b-skeleton>
+      <b-skeleton width="80%" :animated="true"></b-skeleton>
+    </b-message>
     <b-message v-show="!loading" v-for="item in feedItems" :key="item.guid" :closable="false">
       <template #header>
         <b-tag>{{ item.channelTitle }}</b-tag> {{ item.title }}

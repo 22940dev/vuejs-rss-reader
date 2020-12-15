@@ -33,6 +33,10 @@ export default Vue.extend({
   },
   methods: {
     addFeed(url: string){
+      if(this.feeds.findIndex((value => value.url === url)) > -1){
+        return;
+      }
+      this.addFeedURL = "";
       this.feeds.push({
         id: this.feeds.length,
         url

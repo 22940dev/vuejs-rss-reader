@@ -8,9 +8,13 @@
               <b-menu>
                 <b-menu-list label="Actions">
                   <b-menu-item label="Settings" icon-pack="fas" icon="cog" tag="router-link" to="/settings" :active="$route.name === 'Settings'"></b-menu-item>
+                  <b-menu-item label="Refresh" icon-pack="fas" icon="sync-alt" @click="$router.go()"></b-menu-item>
                 </b-menu-list>
                 <b-menu-list label="Feeds">
-                  <b-menu-item v-for="feed in savedFeeds" :key="feed.id" :label="feed.title" icon-pack="fas" icon="list" tag="router-link" :to="'/feed/' + feed.id" :active="Number($route.params.feedId) === feed.id"></b-menu-item>
+                  <b-menu-item v-for="feed in savedFeeds" :key="feed.id" :label="feed.title" v-show="feed.title" icon-pack="fas" icon="rss" tag="router-link" :to="'/feed/' + feed.id" :active="Number($route.params.feedId) === feed.id"></b-menu-item>
+                  <div v-if="notLoaded > 0">
+                    <b-skeleton width="100%" height="25px" :animated="true" v-for="i in notLoaded" :key="i"></b-skeleton>
+                  </div>
                 </b-menu-list>
               </b-menu>
             </div>
@@ -37,16 +41,19 @@ export default Vue.extend({
   name: 'App',
   data: () => ({
     parser: new Parser() as Parser,
-    savedFeeds: [] as SavedFeed[]
+    savedFeeds: [] as SavedFeed[],
+    notLoaded: -1
   }),
   async mounted(){
     this.savedFeeds = [];
     const _savedFeeds = JSON.parse(localStorage.getItem('feeds') ?? '[]');
+    this.notLoaded = _savedFeeds.length;
 
     for (let i = 0; i < _savedFeeds.length; i++) {
       const feed: SavedFeed = _savedFeeds[i];
-      await this.parser.parseURL("https://cors-anywhere.herokuapp.com/" + feed.url).then((result) => {
+      this.parser.parseURL("https://cors-anywhere.herokuapp.com/" + feed.url).then((result) => {
         feed.title = result.title;
+        this.notLoaded--;
       });
       this.savedFeeds.push(feed);
     }
