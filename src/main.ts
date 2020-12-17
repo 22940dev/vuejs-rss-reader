@@ -5,6 +5,8 @@ import VueClipboard from 'vue-clipboard2'
 import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
 import './darktheme.min.css'
+import Parser from "rss-parser";
+import {SavedFeed} from "@/types/SavedFeed";
 
 Vue.config.productionTip = false
 

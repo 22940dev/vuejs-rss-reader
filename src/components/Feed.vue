@@ -11,12 +11,13 @@
     </b-message>
     <b-message v-show="!loading" v-for="item in feedItems" :key="item.guid" :closable="false">
       <template #header>
-        <b-tag>{{ item.channelTitle }}</b-tag> {{ item.title }}
+        <b-tag>{{ item.channelTitle }}</b-tag><b-tag v-show="item.pubDate">{{ item.pubDate }}</b-tag>
+        {{ item.title }}
       </template>
       {{ item.contentSnippet }}
       <br>
       <br>
-      <a :href="item.link">{{ item.link }}</a>
+      <a :href="item.link" target="_blank" rel="noopener noreferrer">{{ item.link }}</a>
     </b-message>
   </div>
 </template>

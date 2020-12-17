@@ -45,17 +45,23 @@ export default Vue.extend({
     notLoaded: -1
   }),
   async mounted(){
-    this.savedFeeds = [];
-    const _savedFeeds = JSON.parse(localStorage.getItem('feeds') ?? '[]');
-    this.notLoaded = _savedFeeds.length;
+    this.refreshFeed();
+  },
+  methods: {
+    async refreshFeed(){
+      this.savedFeeds = [];
+      const _savedFeeds = JSON.parse(localStorage.getItem('feeds') ?? '[]');
 
-    for (let i = 0; i < _savedFeeds.length; i++) {
-      const feed: SavedFeed = _savedFeeds[i];
-      this.parser.parseURL("https://cors-anywhere.herokuapp.com/" + feed.url).then((result) => {
-        feed.title = result.title;
-        this.notLoaded--;
-      });
-      this.savedFeeds.push(feed);
+      this.notLoaded = _savedFeeds.length;
+
+      for (let i = 0; i < _savedFeeds.length; i++) {
+        const feed: SavedFeed = _savedFeeds[i];
+        this.parser.parseURL("https://cors-anywhere.herokuapp.com/" + feed.url).then((result) => {
+          feed.title = result.title;
+          this.notLoaded--;
+        });
+        this.savedFeeds.push(feed);
+      }
     }
   }
 });

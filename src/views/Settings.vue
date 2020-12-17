@@ -7,15 +7,34 @@
       <b-button type="is-primary" @click="addFeed(addFeedURL)">Add</b-button>
       <hr>
       <h1>Feeds</h1>
-      <b-field grouped group-multiline>
-        <div class="control" v-for="feed in feeds" :key="feed.id">
-          <b-tag type="is-primary" attached close-type='is-danger' aria-close-label="Close tag" closable @close="removeFeed(feed.url)">
-            {{ feed.url }}
-          </b-tag>
+      <div class="columns">
+        <div class="column">
+          <b-button class="mt-2 mb-2" icon-left="times" type="is-danger" :disabled="checkedRows.length === 0" @click="removeSelectedRows">Delete selected</b-button>
+          <b-table :data="newFeeds"
+                   :columns="columns"
+                   draggable
+                   checkable
+                   :checked-rows.sync="checkedRows"
+                   @dragstart="dragstart"
+                   @drop="drop"
+                   @dragover="dragover"
+                   @dragleave="dragleave"></b-table>
         </div>
+      </div>
+
+
+      <b-field grouped group-multiline>
         <div class="container mt-5">
           <div class="columns">
             <div class="column">
+              <b-message v-show="unsavedChanges" type="is-warning" :closable="false">
+                <b>Warning</b> You have unsaved changes.
+              </b-message>
+            </div>
+          </div>
+          <div class="columns">
+            <div class="column">
+              <b-button type="is-primary" class="mr-2" icon-left="save" @click="saveFeed(newFeeds)">Save</b-button>
               <b-button type="is-primary" class="mr-2" icon-left="file-import" @click="openImportModal">Import Feeds</b-button>
               <b-button type="is-primary" icon-left="file-export" @click="openExportModal">Export Feeds</b-button>
             </div>
@@ -75,32 +94,52 @@ export default Vue.extend({
   data: () => ({
     addFeedURL: "",
     feeds: [] as SavedFeed[],
+    newFeeds: [] as SavedFeed[],
     exportModalActive: false,
     importModalActive: false,
     feedsJSON: "",
     processingImport: false,
     importMessage: "",
-    importMessageType: ""
+    importMessageType: "",
+    unsavedChanges: false,
+    columns: [
+      {
+        field: 'id',
+        label: 'ID',
+        width: '40',
+        numeric: true
+      },
+      {
+        field: 'url',
+        label: 'URL',
+      }
+    ],
+    checkedRows: [] as SavedFeed[],
+    draggingRow: {} as SavedFeed,
+    draggingRowIndex: 0
   }),
   created() {
     this.feeds = JSON.parse(localStorage.getItem('feeds') ?? '[]');
+    this.newFeeds = [...this.feeds];
   },
   methods: {
     addFeed(url: string){
-      if(this.feeds.findIndex((value => value.url === url)) > -1){
+      if(this.newFeeds.findIndex((value => value.url === url)) > -1){
         return;
       }
       this.addFeedURL = "";
-      this.feeds.push({
+      this.newFeeds.push({
         id: this.feeds.length,
         url
       });
-      localStorage.setItem('feeds', JSON.stringify(this.feeds));
     },
-    removeFeed(url: string) {
-      const index = this.feeds.findIndex((value: SavedFeed) => value.url === url);
-      this.feeds.splice(index, 1);
-      localStorage.setItem('feeds', JSON.stringify(this.feeds));
+    removeFeed(id: number) {
+      const index = this.newFeeds.findIndex((value: SavedFeed) => value.id === id);
+      this.newFeeds.splice(index, 1);
+    },
+    saveFeed(feed: SavedFeed[]){
+      localStorage.setItem('feeds', JSON.stringify(feed));
+      this.$router.go(0);
     },
     openExportModal(){
       this.feedsJSON = JSON.stringify(this.feeds);
@@ -122,8 +161,7 @@ export default Vue.extend({
           for(const item of parsedJson){
             // eslint-disable-next-line no-prototype-builtins
             if (item.hasOwnProperty('id') && item.hasOwnProperty('url')) {
-              this.feeds = parsedJson;
-              localStorage.setItem('feeds', JSON.stringify(this.feeds));
+              this.newFeeds = parsedJson;
               this.importModalActive = false;
             }else{
               this.importMessageType = "is-danger";
@@ -141,6 +179,51 @@ export default Vue.extend({
         }
       }
       this.processingImport = false;
+    },
+    dragstart (payload: any) {
+      this.draggingRow = payload.row
+      this.draggingRowIndex = payload.index
+      payload.event.dataTransfer.effectAllowed = 'copy'
+    },
+    dragover(payload: any) {
+      payload.event.dataTransfer.dropEffect = 'copy'
+      payload.event.target.closest('tr').classList.add('is-selected')
+      payload.event.preventDefault()
+    },
+    dragleave(payload: any) {
+      payload.event.target.closest('tr').classList.remove('is-selected')
+      payload.event.preventDefault()
+    },
+    drop(payload: any) {
+      this.checkedRows = [];
+      payload.event.target.closest('tr').classList.remove('is-selected')
+      const droppedOnRowIndex = payload.index
+
+      const copyFeeds = this.newFeeds;
+      this.newFeeds = [];
+
+      const a = this.draggingRowIndex;
+      const b = droppedOnRowIndex;
+
+      const itemA = copyFeeds[a];
+      const itemB = copyFeeds[b];
+      itemA.id = b;
+      itemB.id = a;
+
+      copyFeeds.sort((a: SavedFeed, b: SavedFeed) => (a.id > b.id) ? 1 : -1);
+
+      this.newFeeds = copyFeeds;
+    },
+    removeSelectedRows(){
+      this.checkedRows.forEach((row: SavedFeed) => {
+        this.removeFeed(row.id);
+      });
+      this.checkedRows = [];
+    }
+  },
+  watch: {
+    newFeeds: function(){
+      this.unsavedChanges = JSON.stringify(this.feeds) !== JSON.stringify(this.newFeeds);
     }
   }
 });
