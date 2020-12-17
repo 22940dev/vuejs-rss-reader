@@ -11,7 +11,7 @@
     </b-message>
     <b-message v-show="!loading" v-for="item in feedItems" :key="item.guid" :closable="false">
       <template #header>
-        <b-tag>{{ item.channelTitle }}</b-tag><b-tag v-show="item.pubDate">{{ item.pubDate }}</b-tag>
+        <b-tag>{{ item.channelTitle }}</b-tag><b-tag v-show="item.pubDate">{{ item.pubDate | moment("L LTS") }}</b-tag>
         {{ item.title }}
       </template>
       {{ item.contentSnippet }}
