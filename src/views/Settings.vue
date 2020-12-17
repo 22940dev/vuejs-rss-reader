@@ -27,16 +27,21 @@
         <div class="container mt-5">
           <div class="columns">
             <div class="column">
-              <b-message v-show="unsavedChanges" type="is-warning" :closable="false">
+              <b-button type="is-primary" class="mr-2" icon-left="file-import" @click="openImportModal">Import Feeds</b-button>
+              <b-button type="is-primary" icon-left="file-export" @click="openExportModal">Export Feeds</b-button>
+            </div>
+          </div>
+          <div class="columns" v-show="unsavedChanges">
+            <div class="column">
+              <b-message type="is-warning" :closable="false">
                 <b>Warning</b> You have unsaved changes.
               </b-message>
             </div>
           </div>
-          <div class="columns">
+          <div class="columns" v-show="unsavedChanges">
             <div class="column">
-              <b-button type="is-primary" class="mr-2" icon-left="save" @click="saveFeed(newFeeds)">Save</b-button>
-              <b-button type="is-primary" class="mr-2" icon-left="file-import" @click="openImportModal">Import Feeds</b-button>
-              <b-button type="is-primary" icon-left="file-export" @click="openExportModal">Export Feeds</b-button>
+              <b-button type="is-success" class="mr-2" icon-left="save" @click="saveFeed(newFeeds)">Save Changes</b-button>
+              <b-button type="is-danger" class="mr-2" icon-left="times" @click="resetNewFeeds">Discard Changes</b-button>
             </div>
           </div>
         </div>
@@ -88,6 +93,7 @@
 
 import Vue from "vue";
 import {SavedFeed} from "@/types/SavedFeed";
+import {cloneDeep} from 'lodash';
 
 export default Vue.extend({
   name: "Settings",
@@ -120,9 +126,12 @@ export default Vue.extend({
   }),
   created() {
     this.feeds = JSON.parse(localStorage.getItem('feeds') ?? '[]');
-    this.newFeeds = [...this.feeds];
+    this.resetNewFeeds();
   },
   methods: {
+    resetNewFeeds(){
+      this.newFeeds = cloneDeep(this.feeds);
+    },
     addFeed(url: string){
       if(this.newFeeds.findIndex((value => value.url === url)) > -1){
         return;
