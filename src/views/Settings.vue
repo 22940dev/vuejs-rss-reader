@@ -132,19 +132,30 @@ export default Vue.extend({
     resetNewFeeds(){
       this.newFeeds = cloneDeep(this.feeds);
     },
+    reorderFeed(feed: SavedFeed[]): SavedFeed[] {
+      const clonedFeed = cloneDeep(feed);
+      let i = 0;
+      clonedFeed.forEach((f: SavedFeed) => {
+        f.id = i;
+        i++;
+      });
+
+      return clonedFeed;
+    },
     addFeed(url: string){
       if(this.newFeeds.findIndex((value => value.url === url)) > -1){
         return;
       }
       this.addFeedURL = "";
       this.newFeeds.push({
-        id: this.feeds.length,
+        id: this.newFeeds[this.newFeeds.length - 1].id + 1,
         url
       });
     },
     removeFeed(id: number) {
       const index = this.newFeeds.findIndex((value: SavedFeed) => value.id === id);
       this.newFeeds.splice(index, 1);
+      this.newFeeds = this.reorderFeed(this.newFeeds);
     },
     saveFeed(feed: SavedFeed[]){
       localStorage.setItem('feeds', JSON.stringify(feed));
