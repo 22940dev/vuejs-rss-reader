@@ -56,7 +56,7 @@ export default Vue.extend({
 
       for (let i = 0; i < _savedFeeds.length; i++) {
         const feed: SavedFeed = _savedFeeds[i];
-        this.parser.parseURL("https://dawn-mode-a8ed.irequire.workers.dev/?" + feed.url).then((result) => {
+        this.parser.parseURL("https://cors-proxy.irequire.workers.dev/?" + feed.url).then((result) => {
           feed.title = result.title;
           this.notLoaded--;
         });
