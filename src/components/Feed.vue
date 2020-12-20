@@ -51,7 +51,7 @@ export default Vue.extend({
 
       const url = feeds[feeds.findIndex((v) => v.id === this.feedId)].url;
 
-      this.parser.parseURL("https://cors-anywhere.herokuapp.com/" + url).then((result) => {
+      this.parser.parseURL("https://dawn-mode-a8ed.irequire.workers.dev/?" + url).then((result) => {
         result.items.forEach((item) => {
           item.channelTitle = result.title;
           this.feedItems.push(item);
