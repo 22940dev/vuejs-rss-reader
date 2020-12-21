@@ -40,6 +40,8 @@
 import Vue from "vue";
 import Parser from "rss-parser";
 import {SavedFeed} from "@/types/SavedFeed";
+import {Themes} from "@/types/Themes";
+import {Theme} from "@/types/Theme";
 
 export default Vue.extend({
   name: 'App',
@@ -48,10 +50,20 @@ export default Vue.extend({
     savedFeeds: [] as SavedFeed[],
     notLoaded: -1,
     CORS_PROXY_PROD: "https://cors-proxy-prod.irequire.workers.dev/?",
-    CORS_PROXY_DEV: "https://cors-proxy-dev.irequire.workers.dev/?"
+    CORS_PROXY_DEV: "https://cors-proxy-dev.irequire.workers.dev/?",
+    usedTheme: Themes.themes[0] as Theme
   }),
   async mounted() {
     this.refreshFeed();
+
+    this.usedTheme = JSON.parse(localStorage.getItem('rss_reader_theme') ?? '{}') ?? Themes.themes[0];
+
+    const style = document.createElement('link');
+    style.type = "text/css";
+    style.rel = "stylesheet";
+    style.href = this.usedTheme.themeURL;
+    style.id = "custom-theme"
+    document.head.appendChild(style);
   },
   methods: {
     async refreshFeed() {

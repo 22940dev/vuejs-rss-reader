@@ -1,6 +1,14 @@
 <template>
   <div class="card">
     <div class="card-content">
+      <b-field label="Theme">
+        <b-select placeholder="Select a theme" v-model="newTheme">
+          <option v-for="t in themes" :value="t" :key="t.themeName">
+              {{ t.themeName }}
+          </option>
+        </b-select>
+      </b-field>
+
       <b-field label="Add Feed">
         <b-input placeholder="URL" type="url" v-model="addFeedURL"></b-input>
       </b-field>
@@ -94,6 +102,8 @@
 import Vue from "vue";
 import {SavedFeed} from "@/types/SavedFeed";
 import {cloneDeep} from 'lodash';
+import {Themes} from "@/types/Themes";
+import {Theme} from "@/types/Theme";
 
 export default Vue.extend({
   name: "Settings",
@@ -122,10 +132,15 @@ export default Vue.extend({
     ],
     checkedRows: [] as SavedFeed[],
     draggingRow: {} as SavedFeed,
-    draggingRowIndex: 0
+    draggingRowIndex: 0,
+    themes: Themes.themes as Theme[],
+    usedTheme: Themes.themes[0],
+    newTheme: {} as Theme
   }),
   created() {
     this.feeds = JSON.parse(localStorage.getItem('feeds') ?? '[]');
+    this.usedTheme = JSON.parse(localStorage.getItem('rss_reader_theme') ?? '{}') ?? Themes.themes[0];
+    this.newTheme = this.usedTheme;
     this.resetNewFeeds();
   },
   methods: {
@@ -244,6 +259,15 @@ export default Vue.extend({
   watch: {
     newFeeds: function(){
       this.unsavedChanges = JSON.stringify(this.feeds) !== JSON.stringify(this.newFeeds);
+    },
+    newTheme: function(value){
+      if(value !== this.usedTheme) {
+        localStorage.setItem('rss_reader_theme', JSON.stringify(value));
+
+        (document.getElementById('custom-theme') as HTMLElementTagNameMap["link"]).href = value.themeURL;
+
+        //this.$router.go(0);
+      }
     }
   }
 });
