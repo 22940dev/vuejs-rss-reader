@@ -1,5 +1,11 @@
 <template>
   <div>
+    <b-message v-show="error.length > 0" type="is-danger">
+      <b>{{ feed.url }}</b> could not be loaded or parsed. See the message below for details.
+    </b-message>
+    <b-message v-show="error.length > 0" type="is-danger">
+      <b>Error</b> {{ error }}
+    </b-message>
     <b-message v-show="loading" v-for="i in 10" :key="i" :closable="false">
       <template #header>
         <b-skeleton width="300px" :animated="true">Loading</b-skeleton>
@@ -11,7 +17,7 @@
     </b-message>
     <b-message v-show="!loading" v-for="item in feedItems" :key="item.guid" :closable="false">
       <template #header>
-        <b-tag>{{ item.channelTitle }}</b-tag><b-tag v-show="item.pubDate">{{ item.pubDate | moment("L LTS") }}</b-tag>
+        <b-tag v-show="item.pubDate">{{ item.pubDate | moment("L LTS") }}</b-tag>
         {{ item.title }}
       </template>
       {{ item.contentSnippet }}
@@ -24,47 +30,32 @@
 
 <script lang="ts">
 import Vue from "vue";
-import Parser, {Item} from "rss-parser";
+import {Item} from "rss-parser";
 import {SavedFeed} from "@/types/SavedFeed";
 
 export default Vue.extend({
   name: 'Feed',
   props: {
-    feedId: {
-      type: Number,
+    feed: {
+      type: Object,
       required: true
     },
+    loading: {
+      type: Boolean,
+      required: true
+    },
+    error: {
+      type: String,
+      required: true
+    }
   },
   data: () => ({
-      loading: true,
-      parser: new Parser() as Parser,
-      feedItems: [] as Item[]
+    feedItems: [] as Item[],
   }),
-  created(){
-    this.loadFeed();
-  },
-  methods: {
-    loadFeed(){
-      this.feedItems = [];
-      this.loading = true;
-      const feeds: SavedFeed[] = JSON.parse(localStorage.getItem('feeds') ?? '[]');
-
-      const url = feeds[feeds.findIndex((v) => v.id === this.feedId)].url;
-
-      this.parser.parseURL("https://cors-proxy.irequire.workers.dev/?" + url).then((result) => {
-        result.items.forEach((item) => {
-          item.channelTitle = result.title;
-          this.feedItems.push(item);
-        })
-      }).finally(() => {
-        this.loading = false;
-      });
-    }
-  },
   watch: {
-    feedId: function(newVal, oldVal){
-      this.loadFeed();
-    }
+    feed: function(newFeed: SavedFeed){
+      this.feedItems = newFeed.items ?? [];
+    },
   }
 });
 </script>

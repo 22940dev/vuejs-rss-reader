@@ -13,17 +13,17 @@ Vue.config.productionTip = false
 VueClipboard.config.autoSetContainer = true
 Vue.use(VueClipboard)
 Vue.use(Buefy, {
-  defaultIconPack: 'fas'
+    defaultIconPack: 'fas'
 })
 
 const locale = window.navigator.language;
 require('moment/locale/' + locale)
 
 Vue.use(VueMoment, {
-  moment
+    moment
 })
 
 new Vue({
-  router,
-  render: h => h(App)
+    router,
+    render: h => h(App)
 }).$mount('#app')
