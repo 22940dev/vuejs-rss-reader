@@ -1,11 +1,13 @@
 <template>
   <div>
-    <b-message v-show="error.length > 0" type="is-danger">
-      <b>{{ feed.url }}</b> could not be loaded or parsed. See the message below for details.
-    </b-message>
-    <b-message v-show="error.length > 0" type="is-danger">
-      <b>Error</b> {{ error }}
-    </b-message>
+    <div v-show="error.length > 0">
+      <b-message type="is-danger">
+        <b>{{ feed.url }}</b> could not be loaded or parsed. See the message below for details.
+      </b-message>
+      <b-message type="is-danger">
+        <b>Error</b> {{ error }}
+      </b-message>
+    </div>
     <b-message v-show="loading" v-for="i in 10" :key="i" :closable="false">
       <template #header>
         <b-skeleton width="300px" :animated="true">Loading</b-skeleton>
@@ -52,6 +54,9 @@ export default Vue.extend({
   data: () => ({
     feedItems: [] as Item[],
   }),
+  created() {
+    this.feedItems = this.feed.items ?? [];
+  },
   watch: {
     feed: function(newFeed: SavedFeed){
       this.feedItems = newFeed.items ?? [];

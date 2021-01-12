@@ -32,6 +32,9 @@ export default Vue.extend({
       this.refreshFeed();
     }
   },
+  created() {
+    this.refreshFeed();
+  },
   methods: {
     refreshFeed(){
       const _feeds = (this.feeds as SavedFeed[]);
