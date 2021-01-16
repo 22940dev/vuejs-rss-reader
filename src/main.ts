@@ -4,7 +4,6 @@ import router from './router'
 import VueClipboard from 'vue-clipboard2'
 import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
-import './darktheme.min.css'
 import VueMoment from 'vue-moment';
 import moment from 'moment';
 

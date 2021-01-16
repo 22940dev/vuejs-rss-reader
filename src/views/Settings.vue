@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card custom-shadow">
     <div class="card-content">
       <b-field label="Theme">
         <b-select placeholder="Select a theme" v-model="newTheme">
@@ -102,8 +102,7 @@
 import Vue from "vue";
 import {SavedFeed} from "@/types/SavedFeed";
 import {cloneDeep} from 'lodash';
-import {Themes} from "@/types/Themes";
-import {Theme} from "@/types/Theme";
+import {Theme, Themes} from "@/types/Themes";
 
 export default Vue.extend({
   name: "Settings",
@@ -139,8 +138,10 @@ export default Vue.extend({
   }),
   created() {
     this.feeds = JSON.parse(localStorage.getItem('feeds') ?? '[]');
-    this.usedTheme = JSON.parse(localStorage.getItem('rss_reader_theme') ?? '{}') ?? Themes.themes[0];
+    this.usedTheme = JSON.parse(localStorage.getItem('rss_reader_theme') ?? JSON.stringify(Themes.themes[0]));
+    localStorage.setItem('rss_reader_theme', JSON.stringify(this.usedTheme));
     this.newTheme = this.usedTheme;
+
     this.resetNewFeeds();
   },
   methods: {
@@ -215,20 +216,24 @@ export default Vue.extend({
       }
       this.processingImport = false;
     },
+    // eslint-disable-next-line
     dragstart (payload: any) {
       this.draggingRow = payload.row
       this.draggingRowIndex = payload.index
       payload.event.dataTransfer.effectAllowed = 'copy'
     },
+    // eslint-disable-next-line
     dragover(payload: any) {
       payload.event.dataTransfer.dropEffect = 'copy'
       payload.event.target.closest('tr').classList.add('is-selected')
       payload.event.preventDefault()
     },
+    // eslint-disable-next-line
     dragleave(payload: any) {
       payload.event.target.closest('tr').classList.remove('is-selected')
       payload.event.preventDefault()
     },
+    // eslint-disable-next-line
     drop(payload: any) {
       this.checkedRows = [];
       payload.event.target.closest('tr').classList.remove('is-selected')
@@ -265,7 +270,6 @@ export default Vue.extend({
         localStorage.setItem('rss_reader_theme', JSON.stringify(value));
 
         (document.getElementById('custom-theme') as HTMLElementTagNameMap["link"]).href = value.themeURL;
-
         //this.$router.go(0);
       }
     }

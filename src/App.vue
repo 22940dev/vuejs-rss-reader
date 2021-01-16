@@ -3,21 +3,19 @@
     <div class="container">
       <div class="columns pt-5">
         <div class="column is-3">
-          <div class="card">
+          <div class="card custom-shadow" style="position: sticky; top: 1.5rem">
             <div class="card-content">
               <b-menu>
                 <b-menu-list label="Actions">
-                  <b-menu-item :active="$route.name === 'Settings'" icon="cog" icon-pack="fas" label="Settings" tag="router-link"
-                               to="/settings"></b-menu-item>
+                  <b-menu-item :active="$route.name === 'Settings'" icon="cog" icon-pack="fas" label="Settings" tag="router-link" to="/settings"></b-menu-item>
                   <b-menu-item icon="sync-alt" icon-pack="fas" label="Refresh" @click="$router.go()"></b-menu-item>
                 </b-menu-list>
                 <b-menu-list label="Feeds">
                   <b-menu-item v-for="feed in savedFeeds" v-show="feed.title" :key="feed.id" :active="Number($route.params.feedId) === feed.id"
-                               :label="feed.title" :to="'/feed/' + feed.id" icon="rss" icon-pack="fas"
+                               :label="feed.title" :to="'/feed/' + feed.id" :icon="feed.title.includes('(Error)') ? 'exclamation-triangle' : 'rss'" icon-pack="fas"
                                tag="router-link"></b-menu-item>
                   <div v-if="notLoaded > 0">
-                    <b-skeleton v-for="i in notLoaded" :key="i" :animated="true" height="25px"
-                                width="100%"></b-skeleton>
+                    <b-skeleton v-for="i in notLoaded" :key="i" :animated="true" height="25px" width="100%"></b-skeleton>
                   </div>
                 </b-menu-list>
               </b-menu>
@@ -33,15 +31,16 @@
 </template>
 
 <style>
-
+.custom-shadow {
+  box-shadow: 0px 0px 20px 0px rgba(50, 50, 50, 0.5) !important;
+}
 </style>
 
 <script lang="ts">
 import Vue from "vue";
 import Parser from "rss-parser";
 import {SavedFeed} from "@/types/SavedFeed";
-import {Themes} from "@/types/Themes";
-import {Theme} from "@/types/Theme";
+import {Theme, Themes} from "@/types/Themes";
 
 export default Vue.extend({
   name: 'App',
