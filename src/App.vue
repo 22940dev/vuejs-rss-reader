@@ -31,6 +31,9 @@
 </template>
 
 <style>
+html {
+  scroll-behavior: smooth;
+}
 .custom-shadow {
   box-shadow: 0px 0px 20px 0px rgba(50, 50, 50, 0.5) !important;
 }

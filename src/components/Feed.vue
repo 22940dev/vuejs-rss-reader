@@ -61,6 +61,7 @@ export default Vue.extend({
   watch: {
     feed: function(newFeed: SavedFeed){
       this.feedItems = newFeed.items ?? [];
+      document.documentElement.scrollTop = 0;
     },
   }
 });
